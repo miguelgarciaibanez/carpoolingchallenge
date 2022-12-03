@@ -1,0 +1,184 @@
+openapi: 3.0.3
+info:
+  title: Car pooling
+  description: Car pooling API declaration
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: mgarciaibanez@gmail.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: /
+ 
+tags:
+  - name: Carpooling
+    description: Car pooling APIs
+ 
+paths:
+  /status:
+    get:
+      description: Returns service status to the caller
+      tags: 
+        - status
+      operationId: status
+      responses:
+        200:
+          description: Success
+  /cars:
+    put:
+      description: Load the list of available cars in the service and remove all previous data (reset the application state)
+      tags:
+        - cars
+      operationId: cars
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              additionalProperties: false
+              items:
+                $ref: '#/components/schemas/CarsArray'              
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+  /journey:
+    post:
+      description: A group of people requests to perform a journey
+      summary: journey
+      operationId: journey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - id
+                - people
+              properties:
+                id:
+                  type: integer
+                people:
+                  type: integer
+      responses:
+        200:
+          description: Success
+        202:
+          description: Success
+        400:
+          description: Bad Request
+  /dropoff:
+    post:
+      description: A group of people requests to be dropped off. Whether they traveled or not
+      summary: dropoff
+      operationId: dropoff
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - ID
+              properties:
+                ID:
+                  type: string
+      responses:
+        200:
+          description: Success
+        204:
+          description: No Content
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailResponse'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailResponse'
+  /locate:
+    post:
+      description: Given a group ID such that ID=X, return the car the group is traveling with, or no car if they are still waiting to be served
+      summary: locate
+      operationId: locate
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - ID
+              properties:
+                ID:
+                  type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocateResponse'
+        204:
+          description: No Content
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailResponse'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailResponse'
+    
+  
+components:
+  schemas:
+    LocateResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - seats
+      properties:
+        id:
+          type: integer
+        seats:
+          type: integer
+    FailResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+        error:
+          type: string
+    CarsArray:
+      type: object
+      required:
+        - id
+        - seats
+      properties:
+        id:
+          type: integer
+        seats:
+          type: integer

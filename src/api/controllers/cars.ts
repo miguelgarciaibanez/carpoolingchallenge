@@ -1,6 +1,20 @@
 import * as express from 'express';
-import { writeJsonResponse } from '../../utils/express';
+import { StatusCodes } from 'http-status-codes';
+import {resetApp} from '@carpool/api/services/cars';
+import { writeJsonResponse } from '@carpool/utils/express';
 
 export function cars(req: express.Request, res:express.Response):void {
-    writeJsonResponse(res,200,'');
+    try {
+        let resReset: boolean = resetApp(req.body);
+        if (resReset){
+            writeJsonResponse(res,StatusCodes.OK,'');
+        }
+        else {
+            writeJsonResponse(res, StatusCodes.BAD_REQUEST, 'Bad Request');
+        }
+    } catch (error) {
+        console.log('Error resetting app');
+        writeJsonResponse(res, StatusCodes.BAD_REQUEST, 'Bad Request');
+    }
+    
 }

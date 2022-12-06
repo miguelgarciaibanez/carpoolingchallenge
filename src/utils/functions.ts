@@ -3,19 +3,24 @@ import { IJourney } from '@carpool/types/journey';
 import { ICar } from '@carpool/types/car';
 import { IJourneyCar, ICarJourneys } from '../types/journeyCar';
 
-export const  listCarsToObjectMap = (list:CarItems):Map<number, CarItems> => {
-    let resultObject:Map<number, CarItems> = new Map<number, CarItems>;
+export const  listCarsToObjectMap = (list:Array<ICar>):Map<number, Map<number,ICar>> => {
+    let resultObject:Map<number, CarItems> = new Map<number, Map<number,ICar>>;
     list.map(item => {
+        const newMapValue = new Map<number,ICar>;
+        newMapValue.set(item.id, item);
         if ( resultObject.has(item.seats) ) {
-            let currentMap = resultObject.get(item.seats);
-            if (currentMap && currentMap.length > 0){
+            let currentMap = new Map(resultObject.get(item.seats));
+            /*
+            if (currentMap && currentMap.size > 0){
                 let newMapValue = JSON.parse(JSON.stringify(currentMap))
                 newMapValue.push(item);
                 resultObject.set(item.seats,newMapValue);
-            }
+            }*/
+            
+            currentMap.set(item.id, item);
+            resultObject.set(item.seats,currentMap);
         } else {
-            let newMap:Array<any> = [item];
-            resultObject.set(item.seats, newMap);
+            resultObject.set(item.seats, newMapValue);
         }
     });
     return resultObject;
@@ -140,11 +145,11 @@ export const removeJourneyFromCarArray = (journey:IJourney, car:ICar, carJourney
  */
 export const addCarToAvailableSeats=(seats:number, car:ICar, availableCars:Map<number, CarItems>):Map<number, CarItems> =>{
     try {
-        let arrayOfCarsToUpdate:Array<any> = availableCars.get(seats) ? JSON.parse(JSON.stringify(availableCars.get(seats))) : [];
+        let mapOfCarsToUpdate = availableCars.get(seats) ? new Map(availableCars.get(seats)) : new Map<number,ICar>;
         if (seats > 0){
-            arrayOfCarsToUpdate.push(car);
+            mapOfCarsToUpdate.set(car.id,car);
             let newAvailableCars = new Map(availableCars);
-            newAvailableCars.set(seats,arrayOfCarsToUpdate);
+            newAvailableCars.set(seats,mapOfCarsToUpdate);
             return newAvailableCars;
         } else {
             return availableCars;
@@ -164,12 +169,12 @@ export const addCarToAvailableSeats=(seats:number, car:ICar, availableCars:Map<n
  */
 export const removeCarFromAvailableSeats = (seats:number, car:ICar, availableCars:Map<number, CarItems>):Map<number, CarItems> =>{
     try {
-        const arrayOfCarsToUpdate = JSON.parse(JSON.stringify(availableCars.get(seats)));
-        if (arrayOfCarsToUpdate && arrayOfCarsToUpdate.length > 0){
-            const newArrayOfCars = arrayOfCarsToUpdate.filter((carItem: ICar) => carItem.id !== car.id);
+        const mapCarsToUpdate = new Map(availableCars.get(seats));
+        if (mapCarsToUpdate && mapCarsToUpdate.size > 0){
+            mapCarsToUpdate.delete(car.id);
             let newAvailableCars = new Map(availableCars);
-            if(newArrayOfCars.length > 0){
-                newAvailableCars.set(seats,newArrayOfCars);
+            if(mapCarsToUpdate.size > 0){
+                newAvailableCars.set(seats,mapCarsToUpdate);
             } else{
                 newAvailableCars.delete(seats);
             }

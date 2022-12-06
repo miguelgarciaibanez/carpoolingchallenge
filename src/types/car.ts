@@ -3,6 +3,6 @@ export interface ICar {
     seats: number
 }
 
-interface ICarItems extends Array<ICar>{};
+interface ICarItems extends Map<number,ICar>{};
 
 export default ICarItems;

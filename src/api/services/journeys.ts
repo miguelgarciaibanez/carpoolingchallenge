@@ -156,22 +156,26 @@ export const setJourney = (journey:IJourney):boolean =>{
         }
         let globalAvailableCars = CarsRecords.getGlobalAvailableCars();
         while (!found && querySeats <= config.allowedSeats) {
-            let arrayAvailableCars = globalAvailableCars.get(querySeats);
-            if (arrayAvailableCars && arrayAvailableCars.length > 0) {
+            let mapAvailableCars = globalAvailableCars.get(querySeats);
+            
+            if (mapAvailableCars && mapAvailableCars.size > 0) {
                 found=true;
                 let availableCarsKeyToDelete = querySeats;
                 let availableCarsKeyToSet = querySeats - journey.people;
                 //link journey and car
-                let availableCarsCopy = JSON.parse(JSON.stringify(arrayAvailableCars));
-                let firstCarAvailable = availableCarsCopy.shift();
+                let availableCarsCopy = new Map<number, ICar>;//JSON.parse(JSON.stringify(arrayAvailableCars));
+                const firstCarAvailable = mapAvailableCars.values().next().value;
                 resSet = linkJourneyCar(journey, firstCarAvailable, journeyCarCopy);
                 //assing journey to car array of journeys and calculate new seats available
                 resSet= addJourneyToCarJourneys(journey, firstCarAvailable);
                 //key from delete is the found one
+                
                 resSet = removeCarFromAvailable(availableCarsKeyToDelete, firstCarAvailable);
+                
                 if (availableCarsKeyToSet > 0){
                     resSet = addCarToAvailable(availableCarsKeyToSet, firstCarAvailable);
                 }
+                
                 //key to assign es found one - people.seats
             }
             querySeats++;

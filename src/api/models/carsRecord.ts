@@ -1,4 +1,4 @@
-import CarItems from '@carpool/types/car';
+import CarItems, { ICar } from '@carpool/types/car';
 import {listCarsToObjectMap} from '@carpool/utils/functions';
 
 class CarRecords {
@@ -18,8 +18,8 @@ class CarRecords {
         return this._instance || (this._instance = new this());
     }
 
-    public setGlobalAvailableCars( arrayToSet : CarItems):void{
-        this._globalAvailableCars = new Map<number,CarItems>(); //reset the map
+    public setGlobalAvailableCars( arrayToSet : Array<ICar>):void{
+        this._globalAvailableCars = new Map<number,Map<number,ICar>>(); //reset the map
         this._globalAvailableCars = listCarsToObjectMap(arrayToSet);
         //console.log("Initial global Available cars");
         //console.log(this._globalAvailableCars);

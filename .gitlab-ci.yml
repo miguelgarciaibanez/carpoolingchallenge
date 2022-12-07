@@ -9,7 +9,7 @@ stages:
 
 build:
   stage: build
-  #image: # Add an image to build your service
+  image: node:latest
   artifacts:
      paths:
        - bin/

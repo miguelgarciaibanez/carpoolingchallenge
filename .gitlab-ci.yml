@@ -15,6 +15,7 @@ build:
        - bin/
   script:
     - npm install typescript -g
+    - npm install
     - npm run build
 
 # build_image:

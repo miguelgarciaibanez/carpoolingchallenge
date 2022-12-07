@@ -15,7 +15,8 @@ const parsedEnv = dotenvParseVariables(env)
 
 interface Config {
     allowedSeats: number,
-    PORT: number
+    PORT: number,
+    CHECKTIME: number,
     /*
     privateKeyFile: string,
     privateKeyPassphrase: string,
@@ -50,7 +51,8 @@ interface Config {
     localCacheTtl: parsedEnv.LOCAL_CACHE_TTL as number,
     */
     allowedSeats: parsedEnv.MAX_SEATS_AVALIABLE as number,
-    PORT: parsedEnv.PORT as number
+    PORT: parsedEnv.PORT as number,
+    CHECKTIME: parsedEnv.CHECKTIME as number
   }
 
 export default config

@@ -1,12 +1,13 @@
 import express from 'express'
-//import {OpenApiValidator} from 'express-openapi-validator' // if version 3.*
 import * as OpenApiValidator from 'express-openapi-validator'
 import bodyParser from "body-parser";
 import {Express} from 'express-serve-static-core'
 import {connector, summarise} from 'swagger-routes-express'
+import {checkPendingJourneys} from '@carpool/api/services/journeys';
 import YAML from 'yamljs'
- 
-import * as api from '../api/controllers'
+import config from '@carpool/config' 
+
+import * as api from '@carpool/api/controllers'
  
 export async function createServer(): Promise<Express> {
   const yamlSpecFile = './config/openapi.yml'
@@ -15,7 +16,6 @@ export async function createServer(): Promise<Express> {
   console.info(apiSummary)
  
   const server = express()
-  //server.use(cors);
  
   // setup API validator
   const validatorOptions = {
@@ -46,6 +46,8 @@ export async function createServer(): Promise<Express> {
   })
 
   connect(server)
+
+  setInterval(()=>{checkPendingJourneys()},config.CHECKTIME);
  
   return server
 }

@@ -3,6 +3,7 @@ import CarsRecords from '@carpool/api/models/carsRecord';
 import JourneyRecord from '@carpool/api/models/journeyRecord';
 import CarJourneysRecords from '@carpool/api/models/carJourneysRecords';
 import CarRecords from '@carpool/api/models/carsRecord';
+import JourneysPending from '@carpool/api/models/journeysPending'
 import { IJourney } from '@carpool/types/journey';
 import { IJourneyCar } from '@carpool/types/journeyCar';
 import { ICarJourneys } from '@carpool/types/journeyCar';
@@ -102,6 +103,57 @@ const removeJourneyFromCarJourneys = (journey:IJourney, car:ICar):boolean =>{
 }
 //#endregion
 
+//#region Pending Journeys
+/**
+ * Function to add enqueue journey
+ * @param journey 
+ * @returns 
+ */
+const addJourneyToPendings = (journey: IJourney):boolean=>{
+    let resAdd = false;
+    try {
+        const pendingJourneysCopy = new Map(JourneysPending.getJourneysPendings());
+        pendingJourneysCopy.set(journey.id, journey);
+        JourneysPending.setJourneysPendings(pendingJourneysCopy);
+        resAdd=true;
+    } catch (error) {
+        console.log(`Error addJourneyToPendings ${error}`);
+    }
+    return resAdd;
+}
+
+/**
+ * Function to remove journeyfrompendings
+ * @param journey 
+ * @returns 
+ */
+const removeJourneyFromPendings = (journeyId: number):boolean=>{
+    let resRemove = false;
+    try {
+        const pendingJourneysCopy = new Map(JourneysPending.getJourneysPendings());
+        if (pendingJourneysCopy.get(journeyId)){
+            pendingJourneysCopy.delete(journeyId);
+            JourneysPending.setJourneysPendings(pendingJourneysCopy);
+            resRemove=true;
+        }
+    } catch (error) {
+        console.log(`Error addJourneyToPendings ${error}`);
+    }
+    return resRemove;
+}
+
+const getJourneyFromPendings = (journeyId: number):IJourney =>{
+    let res:any= null;
+    try {
+        const pendingJourneysCopy = new Map(JourneysPending.getJourneysPendings());
+        res = pendingJourneysCopy.get(journeyId);
+    } catch (error) {
+        console.log(`Error getJourneyFromPendings ${error}`);
+    }
+    return res;
+}
+//#
+
 //#region journeyCar link
 /**
  * Function to link a journey and a car
@@ -144,7 +196,7 @@ const unlinkJourneyCar = (journey: IJourney, car: ICar, journeyCars:Map<number,I
 }
 //#endregion
 
-export const setJourney = (journey:IJourney):boolean =>{
+export const setJourney = (journey:IJourney):StatusCodes =>{
     let resSet = false;
     let found = false;
     let querySeats = journey.people;
@@ -152,7 +204,7 @@ export const setJourney = (journey:IJourney):boolean =>{
         let journeyCarCopy:Map<number,IJourneyCar> = JourneyRecord.getJourneyRecords();
         if (journeyCarCopy.get(journey.id)){
             console.log(`Already exits a journey with the same id: ${journey.id}`);
-            return resSet;
+            return StatusCodes.BAD_REQUEST;
         }
         let globalAvailableCars = CarsRecords.getGlobalAvailableCars();
         while (!found && querySeats <= config.allowedSeats) {
@@ -163,17 +215,15 @@ export const setJourney = (journey:IJourney):boolean =>{
                 let availableCarsKeyToDelete = querySeats;
                 let availableCarsKeyToSet = querySeats - journey.people;
                 //link journey and car
-                let availableCarsCopy = new Map<number, ICar>;//JSON.parse(JSON.stringify(arrayAvailableCars));
                 const firstCarAvailable = mapAvailableCars.values().next().value;
                 resSet = linkJourneyCar(journey, firstCarAvailable, journeyCarCopy);
                 //assing journey to car array of journeys and calculate new seats available
-                resSet= addJourneyToCarJourneys(journey, firstCarAvailable);
+                resSet= resSet && addJourneyToCarJourneys(journey, firstCarAvailable);
                 //key from delete is the found one
-                
-                resSet = removeCarFromAvailable(availableCarsKeyToDelete, firstCarAvailable);
+                resSet = resSet && removeCarFromAvailable(availableCarsKeyToDelete, firstCarAvailable);
                 
                 if (availableCarsKeyToSet > 0){
-                    resSet = addCarToAvailable(availableCarsKeyToSet, firstCarAvailable);
+                    resSet = resSet && addCarToAvailable(availableCarsKeyToSet, firstCarAvailable);
                 }
                 
                 //key to assign es found one - people.seats
@@ -181,14 +231,14 @@ export const setJourney = (journey:IJourney):boolean =>{
             querySeats++;
         }
         if (!resSet){
-            console.log('We have to enqueue the journey'); //TODO
-            console.log(journey);
+            resSet = addJourneyToPendings(journey);
+            return StatusCodes.ACCEPTED;
         }
-        return resSet;
+        return resSet ? StatusCodes.OK : StatusCodes.BAD_REQUEST;
     } catch (error) {
         console.log(`Error setting up the car: ${error}`)
     }
-    return resSet;
+    return StatusCodes.BAD_REQUEST;
 }
 
 export function dropOffJourney(ID:string):StatusCodes{
@@ -202,8 +252,8 @@ export function dropOffJourney(ID:string):StatusCodes{
         let journeyFound = journeyCarMap.get(idNumber);
         if (!journeyFound){
             //CHECK IF EXISTS IN QUEUE
-            console.log('Check wheter exists in queue');
-            return StatusCodes.NOT_FOUND;
+            resSet = removeJourneyFromPendings(idNumber);
+            return resSet ? StatusCodes.OK : StatusCodes.NOT_FOUND;
         }
         let journeyPeople = journeyFound.journey.people;
         //from here can be done in a function
@@ -217,8 +267,6 @@ export function dropOffJourney(ID:string):StatusCodes{
         resSet = unlinkJourneyCar(journeyFound.journey,journeyFound.car,journeyCarMap)
         //erase journey from car array of journeys map
         resSet = removeJourneyFromCarJourneys(journeyFound.journey, journeyFound.car);
-        //erase journey from journey records
-        //journeyCarMap.delete(journeyFound.journey.id);
         //erase car from old available seats
         if(carJourneyMap.freeSeats > 0){
             resSet = removeCarFromAvailable(carJourneyMap.freeSeats,journeyFound.car);
@@ -236,9 +284,6 @@ export function dropOffJourney(ID:string):StatusCodes{
 }
 
 export function locateJourney(ID:string):{statusCode:StatusCodes, car:ICar | any}{
-    //lo buscas en el map journeycoche
-    //si existe devuelves el coche
-    //si no existe no devuelves nada
     try {
         let idNumber = parseInt(ID);
         if (isNaN(idNumber)){
@@ -248,11 +293,27 @@ export function locateJourney(ID:string):{statusCode:StatusCodes, car:ICar | any
         if (car){
             return ({statusCode:StatusCodes.OK, car});
         } else {
-            console.log('check whether is enqueued');
-            return ({statusCode:StatusCodes.NOT_FOUND, car:null});
+            let journeyPending: IJourney = getJourneyFromPendings(idNumber);
+            if (journeyPending){
+                return ({statusCode: StatusCodes.NO_CONTENT, car:null});
+            } else {
+                return ({statusCode:StatusCodes.NOT_FOUND, car:null});
+            }
         }
     } catch (error) {
         console.log(`Error on locate function:${error}`);
         return ({statusCode:StatusCodes.BAD_REQUEST, car:null});
+    }
+}
+
+
+export const checkPendingJourneys = () => {
+    const pendingJourneysCopy = new Map(JourneysPending.getJourneysPendings());
+    if (pendingJourneysCopy.size > 0) {
+        pendingJourneysCopy.forEach((value, key) => {
+            if (setJourney(value) == StatusCodes.OK){
+                removeJourneyFromPendings(value.id);
+            }
+        });
     }
 }

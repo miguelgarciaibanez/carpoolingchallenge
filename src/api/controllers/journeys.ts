@@ -3,14 +3,10 @@ import { StatusCodes } from 'http-status-codes';
 import {setJourney, dropOffJourney, locateJourney} from '@carpool/api/services/journeys';
 import { writeJsonResponse } from '@carpool/utils/express';
 
-export function journey(req: express.Request, res: express.Response):void{
+export async function journey(req: express.Request, res: express.Response):Promise<void>{
     try {
-        let resSetJourney: boolean = setJourney(req.body);
-        if (resSetJourney) {
-            writeJsonResponse(res, StatusCodes.OK,'');
-        } else {
-            writeJsonResponse(res, StatusCodes.BAD_REQUEST, 'Bad Request');
-        }
+        let resSetJourney: StatusCodes = await setJourney(req.body);
+        writeJsonResponse(res, resSetJourney,'');
     } catch (error) {
         console.log('Error setting journey');
         writeJsonResponse(res, StatusCodes.BAD_REQUEST, 'Bad Request');
@@ -28,7 +24,6 @@ export function dropoff(req: express.Request, res: express.Response):void{
         console.log('Error dropoff journey');
         writeJsonResponse(res, StatusCodes.BAD_REQUEST, 'Bad Request');
     }
-    res.status(200).send();
 }
 
 export function locate(req: express.Request, res: express.Response):void{
@@ -39,7 +34,7 @@ export function locate(req: express.Request, res: express.Response):void{
         const resLocate = locateJourney(req.body.ID);
         writeJsonResponse(res, resLocate.statusCode, resLocate.statusCode === StatusCodes.OK ? resLocate.car : '');
     } catch (error) {
-        
+        console.log('Error locate journey');
+        writeJsonResponse(res, StatusCodes.BAD_REQUEST, 'Bad Request');
     }
-    res.status(200).send();
 }

@@ -19,7 +19,7 @@ build:
     - npm run build
 
 build_image:
-  stage: docker
+  stage: build_image
   image: docker:latest
   variables:
     DOCKER_DRIVER: overlay2

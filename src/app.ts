@@ -1,7 +1,7 @@
 import {createServer} from '@carpool/utils/server';
 import config from '@carpool/config'
 
-const port = config.PORT || 3000;
+const port = config.PORT || 9091;
 
 createServer()
   .then(server => {

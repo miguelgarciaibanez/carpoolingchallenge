@@ -39,10 +39,8 @@ export const addJourneyCar = (journey: IJourney, car: ICar, journeyCars: Map<num
         if (journeyCar){
             newJourneyCarCopy.delete(journey.id);
             newJourneyCarCopy.set(journey.id,{journey,car});
-            return newJourneyCarCopy;
         } else {
             newJourneyCarCopy.set(journey.id, {journey, car});
-            return newJourneyCarCopy
         }
     } catch (error) {
         console.log(`Error tryingto set journeyRecords ${error}`);
@@ -168,24 +166,21 @@ export const addCarToAvailableSeats=(seats:number, car:ICar, availableCars:Map<n
  * @returns 
  */
 export const removeCarFromAvailableSeats = (seats:number, car:ICar, availableCars:Map<number, CarItems>):Map<number, CarItems> =>{
+    let newAvailableCars = new Map(availableCars);
     try {
-        const mapCarsToUpdate = new Map(availableCars.get(seats));
+        const mapCarsToUpdate = newAvailableCars.get(seats);
         if (mapCarsToUpdate && mapCarsToUpdate.size > 0){
             mapCarsToUpdate.delete(car.id);
-            let newAvailableCars = new Map(availableCars);
             if(mapCarsToUpdate.size > 0){
                 newAvailableCars.set(seats,mapCarsToUpdate);
             } else{
                 newAvailableCars.delete(seats);
             }
-            return newAvailableCars;
-        } else {
-            return availableCars;
-        }
+        } 
     } catch (error) {
         console.log(`Error removeCarFromAvailableSeats:${error}`);
     }
-    return availableCars;
+    return newAvailableCars;
 }
 
 

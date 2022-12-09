@@ -3,13 +3,15 @@ import { dummyICar, dummyIJourney,
          emptyDummyICarJourneys, dummyICarJourneys,
          noEmptyDummyICarJourneys,noEmptyResponseDummyICarJourneys,
          dummyAvailableCarItemsDummyResponse,
-         emptyAvailabeCars,
+         emptyAvailabeCars, severalAvailableCars,
          noEmptyAvailableCars } from "@carpool/tests/dummyObjects";
 import { ICar, } from "@carpool/types/car";
 import { IJourney } from '@carpool/types/journey';
 import { IJourneyCar, ICarJourneys } from '@carpool/types/journeyCar';
-import exp from "constants";
-import { listCarsToObjectMap, addJourneyCar, removeJourneyCar, addJourneyToCarArray, removeJourneyFromCarArray, addCarToAvailableSeats } from '../functions';
+import { listCarsToObjectMap, 
+         addJourneyCar, removeJourneyCar, 
+         addJourneyToCarArray, removeJourneyFromCarArray, 
+         addCarToAvailableSeats,removeCarFromAvailableSeats } from '../functions';
 
 
 describe('ListCarsToObject',()=>{
@@ -160,6 +162,24 @@ describe('Car availableSeats',()=>{
         const car = dummyICar();
         const resExpected = noEmptyAvailableCars();
         let resCall = addCarToAvailableSeats(0,car,resExpected);
+        expect(resCall.size).toEqual(resExpected.size);
+        expect(resCall).toMatchObject(resExpected);
+    });
+
+    it('Should return empty map because it deletes the only available car',()=>{
+        const car = dummyICar();
+        const noEmptyCars = noEmptyAvailableCars();
+        const resExpected = emptyAvailabeCars();
+        let resCall = removeCarFromAvailableSeats(1,car,noEmptyCars);
+        expect(resCall.size).toEqual(resExpected.size);
+        expect(resCall).toMatchObject(resExpected);
+    });
+
+    it('Should return changed map because there are two available cars',()=>{
+        const car = {id:2, seats:1};
+        const noEmptyCars = severalAvailableCars();
+        const resExpected = noEmptyAvailableCars();
+        let resCall = removeCarFromAvailableSeats(1,car,noEmptyCars);
         expect(resCall.size).toEqual(resExpected.size);
         expect(resCall).toMatchObject(resExpected);
     })

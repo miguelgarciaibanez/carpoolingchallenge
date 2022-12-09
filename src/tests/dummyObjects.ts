@@ -37,17 +37,6 @@ export const dummyIJourney = ()=>{
     }
 }
 
-export const dummyIJourneyItems = () =>{
-    return [dummyIJourney()];
-}
-
-export const dummyIJourneyCar = () =>{
-    return{
-        journey: dummyIJourney(),
-        car: dummyICar()
-    }
-}
-
 export const emptyDummyICarJourneys = ():Map<number, { car:{id:number, seats:number},
                                                  journeys:Array<{id:number, people:number}>,
                                                  freeSeats:number}> => {
@@ -93,6 +82,16 @@ export const noEmptyAvailableCars = ():Map<number,Map<number,{id:number,seats:nu
     let car = dummyICar();
     let mapCar = new Map<number,{id:number,seats:number}>;
     mapCar.set(car.id, car);
+    res.set(car.seats, mapCar);
+    return res;
+}
+
+export const severalAvailableCars = ():Map<number,Map<number,{id:number,seats:number}>> =>{
+    let res = new Map<number,Map<number,{id:number,seats:number}>>;
+    let car = dummyICar();
+    let mapCar = new Map<number,{id:number,seats:number}>;
+    mapCar.set(car.id, car);
+    mapCar.set(2,{id:2, seats:1})
     res.set(car.seats, mapCar);
     return res;
 }

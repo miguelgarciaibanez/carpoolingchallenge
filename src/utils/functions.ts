@@ -1,21 +1,20 @@
 import CarItems from '@carpool/types/car';
 import { IJourney } from '@carpool/types/journey';
 import { ICar } from '@carpool/types/car';
-import { IJourneyCar, ICarJourneys } from '../types/journeyCar';
+import { IJourneyCar, ICarJourneys } from '@carpool/types/journeyCar';
 
-export const  listCarsToObjectMap = (list:Array<ICar>):Map<number, Map<number,ICar>> => {
+/**
+ * Function to set list cars to ObjectMap
+ * @param list 
+ * @returns 
+ */
+export const listCarsToObjectMap = (list:Array<ICar>):Map<number, Map<number,ICar>> => {
     let resultObject:Map<number, CarItems> = new Map<number, Map<number,ICar>>;
     list.map(item => {
         const newMapValue = new Map<number,ICar>;
         newMapValue.set(item.id, item);
         if ( resultObject.has(item.seats) ) {
             let currentMap = new Map(resultObject.get(item.seats));
-            /*
-            if (currentMap && currentMap.size > 0){
-                let newMapValue = JSON.parse(JSON.stringify(currentMap))
-                newMapValue.push(item);
-                resultObject.set(item.seats,newMapValue);
-            }*/
             
             currentMap.set(item.id, item);
             resultObject.set(item.seats,currentMap);
@@ -69,7 +68,6 @@ export const removeJourneyCar = (journey:IJourney, car:ICar, journeyCars: Map<nu
         console.log(`Error on removeJourneyCar:${error}`)
     }
     return newJourneyCarCopy;
-
 }
 
 /**
@@ -119,16 +117,18 @@ export const removeJourneyFromCarArray = (journey:IJourney, car:ICar, carJourney
         if (carRecord){
             let newCarJourneyRecords = {} as ICarJourneys;
             let arrayOfJourneys = JSON.parse(JSON.stringify(carRecord.journeys));
-            arrayOfJourneys = arrayOfJourneys.filter((journeyItem: IJourney) => journeyItem.id !== journey.id);
-            if (arrayOfJourneys.length === 0){
-              newCarJourneysCopy.delete(car.id);
-              return newCarJourneysCopy;  
+            if (arrayOfJourneys.find((journeyItem: IJourney) => journeyItem.id === journey.id)){
+                arrayOfJourneys = arrayOfJourneys.filter((journeyItem: IJourney) => journeyItem.id !== journey.id);
+                if (arrayOfJourneys.length === 0){
+                  newCarJourneysCopy.delete(car.id);
+                  return newCarJourneysCopy;  
+                }
+                let newfreeSeats = carRecord.freeSeats + journey.people;
+                newCarJourneyRecords.car = car; 
+                newCarJourneyRecords.freeSeats = newfreeSeats;
+                newCarJourneyRecords.journeys = arrayOfJourneys;
+                newCarJourneysCopy.set(car.id, newCarJourneyRecords);
             }
-            let newfreeSeats = carRecord.freeSeats + journey.people;
-            newCarJourneyRecords.car = car; 
-            newCarJourneyRecords.freeSeats = newfreeSeats;
-            newCarJourneyRecords.journeys = arrayOfJourneys;
-            newCarJourneysCopy.set(car.id, newCarJourneyRecords);
         }
     } catch (error) {
         console.log(`removeJourneyFromCarArray error:${error}`);
@@ -144,20 +144,20 @@ export const removeJourneyFromCarArray = (journey:IJourney, car:ICar, carJourney
  * @returns 
  */
 export const addCarToAvailableSeats=(seats:number, car:ICar, availableCars:Map<number, CarItems>):Map<number, CarItems> =>{
+    let newAvailableCars = new Map(availableCars);
     try {
         let mapOfCarsToUpdate = availableCars.get(seats) ? new Map(availableCars.get(seats)) : new Map<number,ICar>;
         if (seats > 0){
             mapOfCarsToUpdate.set(car.id,car);
-            let newAvailableCars = new Map(availableCars);
             newAvailableCars.set(seats,mapOfCarsToUpdate);
-            return newAvailableCars;
+            //return newAvailableCars;
         } else {
-            return availableCars;
+            //return availableCars;
         }
     } catch (error) {
         console.log(`Error addCarToAvailableSeats:${error}`);
     }
-    return availableCars;
+    return newAvailableCars;
 }
 
 /**

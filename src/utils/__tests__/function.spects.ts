@@ -7,12 +7,11 @@ import { dummyICar, dummyIJourney,
          noEmptyAvailableCars } from "@carpool/tests/dummyObjects";
 import { ICar, } from "@carpool/types/car";
 import { IJourney } from '@carpool/types/journey';
-import { IJourneyCar, ICarJourneys } from '@carpool/types/journeyCar';
+import { IJourneyCar } from '@carpool/types/journeyCar';
 import { listCarsToObjectMap, 
          addJourneyCar, removeJourneyCar, 
          addJourneyToCarArray, removeJourneyFromCarArray, 
          addCarToAvailableSeats,removeCarFromAvailableSeats } from '../functions';
-
 
 describe('ListCarsToObject',()=>{
     it('Should return empty Map',()=>{

@@ -207,6 +207,7 @@ export const setJourney = (journey:IJourney):StatusCodes =>{
             return StatusCodes.BAD_REQUEST;
         }
         let globalAvailableCars = CarsRecords.getGlobalAvailableCars();
+
         while (!found && querySeats <= config.allowedSeats) {
             let mapAvailableCars = globalAvailableCars.get(querySeats);
             

@@ -7,7 +7,9 @@ import {checkPendingJourneys} from '@carpool/api/services/journeys';
 import YAML from 'yamljs'
 import config from '@carpool/config' 
 
-import * as api from '@carpool/api/controllers'
+import * as api from '@carpool/api/controllers';
+
+let intervalId:NodeJS.Timer;
  
 export async function createServer(): Promise<Express> {
   const yamlSpecFile = './config/openapi.yml'
@@ -47,7 +49,12 @@ export async function createServer(): Promise<Express> {
 
   connect(server)
 
-  setInterval(()=>{checkPendingJourneys()},config.CHECKTIME);
+  intervalId = setInterval(()=>{checkPendingJourneys()},config.CHECKTIME);
  
   return server
+}
+
+
+export const closeServer=():void=>{
+  clearInterval(intervalId);
 }

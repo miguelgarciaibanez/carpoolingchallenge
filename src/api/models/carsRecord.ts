@@ -21,8 +21,11 @@ class CarRecords {
     public setGlobalAvailableCars( arrayToSet : Array<ICar>):void{
         this._globalAvailableCars = new Map<number,Map<number,ICar>>(); //reset the map
         this._globalAvailableCars = listCarsToObjectMap(arrayToSet);
-        //console.log("Initial global Available cars");
-        //console.log(this._globalAvailableCars);
+        /*
+        console.log("Initial global Available cars");
+        console.log(this._globalAvailableCars.get(1)?.size);
+        console.log(this._globalAvailableCars.size);
+        */
     }
 
     public getGlobalAvailableCars():Map<number,CarItems>{

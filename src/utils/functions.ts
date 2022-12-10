@@ -2,6 +2,7 @@ import CarItems from '@carpool/types/car';
 import { IJourney } from '@carpool/types/journey';
 import { ICar } from '@carpool/types/car';
 import { IJourneyCar, ICarJourneys } from '@carpool/types/journeyCar';
+import config from '@carpool/config' 
 
 /**
  * Function to set list cars to ObjectMap
@@ -10,18 +11,31 @@ import { IJourneyCar, ICarJourneys } from '@carpool/types/journeyCar';
  */
 export const listCarsToObjectMap = (list:Array<ICar>):Map<number, Map<number,ICar>> => {
     let resultObject:Map<number, CarItems> = new Map<number, Map<number,ICar>>;
-    list.map(item => {
-        const newMapValue = new Map<number,ICar>;
-        newMapValue.set(item.id, item);
-        if ( resultObject.has(item.seats) ) {
-            let currentMap = new Map(resultObject.get(item.seats));
-            
-            currentMap.set(item.id, item);
-            resultObject.set(item.seats,currentMap);
-        } else {
-            resultObject.set(item.seats, newMapValue);
+
+    let arrayGen: Array<any>= new Array<any>();
+    for (let cont:number = 0;cont < config.allowedSeats; cont++){
+        arrayGen[cont+1] = [];
+    }
+
+    list.forEach((item)=>{
+        arrayGen[item.seats].push(item);
+    });
+    
+    let arrayMaps:Array<Map<any,any>> = [];
+    arrayGen.forEach( array =>{
+        let map = new Map();
+        if ( array.length > 0 ){
+            map = new Map(array.map( (obj: { id: any; }) => [obj.id, obj]));
+        }
+        arrayMaps.push(map);
+    });
+    
+    arrayMaps.forEach((map,index)=>{
+        if (map.size > 0){
+            resultObject.set(index+1,map);
         }
     });
+    
     return resultObject;
 }
 

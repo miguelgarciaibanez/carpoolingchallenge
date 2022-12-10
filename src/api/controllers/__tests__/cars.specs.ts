@@ -8,7 +8,6 @@ let server: Express;
 
 beforeAll(async()=>{
     server = await createServer();
-    jest.useFakeTimers();
 })
 
 afterAll(()=>{

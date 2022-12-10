@@ -14,8 +14,7 @@ let intervalId:NodeJS.Timer;
 export async function createServer(): Promise<Express> {
   const yamlSpecFile = './config/openapi.yml'
   const apiDefinition = YAML.load(yamlSpecFile)
-  const apiSummary = summarise(apiDefinition)
-  console.info(apiSummary)
+  //const apiSummary = summarise(apiDefinition)
  
   const server = express()
  
@@ -25,12 +24,13 @@ export async function createServer(): Promise<Express> {
     validateRequests: true,
     validateResponses: true
   }
-
-  server.use(bodyParser.json());
-  server.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+  
+  server.use(bodyParser.json({ limit: "50mb" }));
+  server.use(bodyParser.urlencoded({ limit: "50mb",  extended: true, parameterLimit: 2000000 }));
   server.use(OpenApiValidator.middleware(validatorOptions))
   
   // error customization, if request is invalid
+  
   server.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     res.status(err.status).json({
       error: {

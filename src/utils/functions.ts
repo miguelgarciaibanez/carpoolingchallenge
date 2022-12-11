@@ -40,6 +40,41 @@ export const listCarsToObjectMap = (list:Array<ICar>):Map<number, Map<number,ICa
 }
 
 /**
+ * Function to set list cars to ObjectMap
+ * @param list 
+ * @returns 
+ */
+ export const listPendingJourneysToObjectMap = (list:Array<IJourney>):Map<number, Map<number,IJourney>> => {
+    let resultObject:Map<number, Map<number,IJourney>> = new Map<number, Map<number,IJourney>>;
+
+    let arrayGen: Array<any>= new Array<any>();
+    for (let cont:number = 0;cont < config.allowedSeats; cont++){
+        arrayGen[cont+1] = [];
+    }
+
+    list.forEach((item)=>{
+        arrayGen[item.people].push(item);
+    });
+    
+    let arrayMaps:Array<Map<any,any>> = [];
+    arrayGen.forEach( array =>{
+        let map = new Map();
+        if ( array.length > 0 ){
+            map = new Map(array.map( (obj: { id: any; }) => [obj.id, obj]));
+        }
+        arrayMaps.push(map);
+    });
+    
+    arrayMaps.forEach((map,index)=>{
+        if (map.size > 0){
+            resultObject.set(index+1,map);
+        }
+    });
+    
+    return resultObject;
+}
+
+/**
  * Function to link a Journey to a car
  * @param journey 
  * @param car 

@@ -9,7 +9,13 @@ import { ICar } from '@carpool/types/car';
 import { ICarJourneys } from '@carpool/types/journeyCar';
 import carJourneysRecords from '@carpool/api/models/carJourneysRecords';
 
+
+
+
 describe('SetJourney',()=>{
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
     it('Should return BAD REQUEST due to an exception',()=>{
         jest.spyOn(JourneyRecord,"getJourneyRecords").mockImplementation(()=>{
             throw new Error;
@@ -67,36 +73,44 @@ describe('SetJourney',()=>{
     });
 });
 
+
 describe('DropOffJourney',()=>{
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
     it('Should return bad request because ID is not a number',()=>{
         const wrongID:string="wrongID";
         let result: StatusCodes = JourneyServices.dropOffJourney(wrongID);
         expect(result).toBe(StatusCodes.BAD_REQUEST);
     });
-
+    
     it('Should return NOT FOUND because journey is neither in journeys nor in pendings',()=>{
         jest.spyOn(JourneyRecord,"getJourneyRecords").mockImplementationOnce(()=>{
             let result:Map<number,{journey:IJourney,car:ICar}> = new Map<number,{journey:IJourney,car:ICar}>;
             return result;
         });
-        jest.spyOn(JourneysPending,"getJourneysPendings").mockImplementationOnce(()=>{
-            let result:Map<number,IJourney> = new Map<number,IJourney>();
+        jest.spyOn(JourneysPending,"getJourneysPendings").mockImplementation(()=>{
+            let result:Map<number,Map<number,IJourney>> = new Map<number,Map<number,IJourney>>();
             return result;
         })
         const wrongID:string="1";
         let result: StatusCodes = JourneyServices.dropOffJourney(wrongID);
         expect(result).toBe(StatusCodes.NOT_FOUND);
     });
-
-    it('Should return  because journey is in pendings',()=>{
+    
+    it('Should return OK because journey is in pendings',()=>{
         jest.spyOn(JourneyRecord,"getJourneyRecords").mockImplementationOnce(()=>{
             let result:Map<number,{journey:IJourney,car:ICar}> = new Map<number,{journey:IJourney,car:ICar}>;
             return result;
         });
-        jest.spyOn(JourneysPending,"getJourneysPendings").mockImplementationOnce(()=>{
-            let result:Map<number,IJourney> = new Map<number,IJourney>();
-            result.set(1,{id:1, people:6});
-            result.set(2,{id:2, people:3});
+        jest.spyOn(JourneysPending,"getJourneysPendings").mockImplementation(()=>{
+            let result:Map<number,Map<number,IJourney>> = new Map<number,Map<number,IJourney>>();
+            let firstMap = new Map();
+            firstMap.set(1,{id:1, people:6});
+            let secondMap = new Map();
+            result.set(6,firstMap);
+            secondMap.set(2,{id:2, people:3})
+            result.set(3,secondMap);
             return result;
         })
         const wrongID:string="1";
@@ -133,6 +147,7 @@ describe('DropOffJourney',()=>{
         let result:StatusCodes = JourneyServices.dropOffJourney("1");
         expect(result).toBe(StatusCodes.OK)
     })
+    
 })
 
 
@@ -163,10 +178,14 @@ describe('LocateJourney',()=>{
             let result:Map<number,{journey:IJourney,car:ICar}> = new Map<number,{journey:IJourney,car:ICar}>;
             return result;
         });
-        jest.spyOn(JourneysPending,"getJourneysPendings").mockImplementationOnce(()=>{
-            let result:Map<number,IJourney> = new Map<number,IJourney>();
-            result.set(1,{id:1, people:6});
-            result.set(2,{id:2, people:3});
+        jest.spyOn(JourneysPending,"getJourneysPendings").mockImplementation(()=>{
+            let result:Map<number,Map<number,IJourney>> = new Map<number,Map<number,IJourney>>();
+            let firstMap = new Map();
+            firstMap.set(1,{id:1, people:6});
+            let secondMap = new Map();
+            result.set(6,firstMap);
+            secondMap.set(2,{id:2, people:3})
+            result.set(3,secondMap);
             return result;
         })
 
@@ -181,8 +200,8 @@ describe('LocateJourney',()=>{
             let result:Map<number,{journey:IJourney,car:ICar}> = new Map<number,{journey:IJourney,car:ICar}>;
             return result;
         });
-        jest.spyOn(JourneysPending,"getJourneysPendings").mockImplementationOnce(()=>{
-            let result:Map<number,IJourney> = new Map<number,IJourney>();
+        jest.spyOn(JourneysPending,"getJourneysPendings").mockImplementation(()=>{
+            let result:Map<number,Map<number,IJourney>> = new Map<number,Map<number,IJourney>>();
             return result;
         })
 

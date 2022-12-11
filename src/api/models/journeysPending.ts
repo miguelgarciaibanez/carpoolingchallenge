@@ -7,7 +7,7 @@ import { IJourney } from '@carpool/types/journey';
 class JourneysPending{
     private static _instance: JourneysPending;
 
-    private _globalJourneysPending: Map<number,IJourney> = new Map<number,IJourney>();
+    private _globalJourneysPending: Map<number,Map<number,IJourney>> = new Map<number,Map<number,IJourney>>();
 
     constructor(){
         if (JourneysPending._instance) {
@@ -20,18 +20,20 @@ class JourneysPending{
         return this._instance || (this._instance = new this());
     }
 
-    public getJourneysPendings():Map<number,IJourney> {
+    public getJourneysPendings():Map<number,Map<number,IJourney>> {
         return this._globalJourneysPending;
     }
 
-    public setJourneysPendings(mapJourneys:Map<number,IJourney>):void{
+    public setJourneysPendings(mapJourneys:Map<number,Map<number,IJourney>>):void{
         this._globalJourneysPending = mapJourneys;
-        //console.log("New JourneysPendings");
-        //console.log(this._globalJourneysPending);
+        /*
+        console.log("New JourneysPendings");
+        console.log(this._globalJourneysPending);
+        */
     }
 
     public resetJourneysPendings():void{
-        this._globalJourneysPending = new Map<number,IJourney>();
+        this._globalJourneysPending = new Map<number,Map<number,IJourney>>();
     }
 }
 

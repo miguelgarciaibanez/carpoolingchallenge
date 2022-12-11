@@ -146,7 +146,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FailResponse'
-    
+  /setPendingJourneys:
+    put:
+      description: Set a bunch of pending journeys for testing purposes
+      tags:
+        - pendingJourneys
+      operationId: setPendingJourneys
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              additionalProperties: false
+              items:
+                $ref: '#/components/schemas/JourneysArray'              
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request Aja
   
 components:
   schemas:
@@ -181,4 +200,14 @@ components:
         id:
           type: integer
         seats:
+          type: integer
+    JourneysArray:
+      type: object
+      required:
+        - id
+        - people
+      properties:
+        id:
+          type: integer
+        people:
           type: integer

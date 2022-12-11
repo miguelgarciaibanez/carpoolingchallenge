@@ -23,7 +23,7 @@ class CarRecords {
         this._globalAvailableCars = listCarsToObjectMap(arrayToSet);
         /*
         console.log("Initial global Available cars");
-        console.log(this._globalAvailableCars.get(1)?.size);
+        console.log(this._globalAvailableCars);
         console.log(this._globalAvailableCars.size);
         */
     }
@@ -34,8 +34,10 @@ class CarRecords {
 
     public setAvailableCars(availableCars:Map<number,CarItems>):void{
         this._globalAvailableCars = availableCars;
-        //console.log("available cars map");
-        //console.log(this._globalAvailableCars);
+        /*
+        console.log("available cars map");
+        console.log(this._globalAvailableCars);
+        */
     }
 }
 

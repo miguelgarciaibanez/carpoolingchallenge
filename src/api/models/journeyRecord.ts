@@ -32,8 +32,10 @@ class JourneyRecord {
 
     public setJourneyRecords(mapJourneys:Map<number,IJourneyCar>):void{
         this._globalJourneyRecord = mapJourneys;
-        //console.log("New JourneyRecords");
-        //console.log(this._globalJourneyRecord);
+        /*
+        console.log("New JourneyRecords");
+        console.log(this._globalJourneyRecord);
+        */
     }
 
     public resetJourneyRecords():void{

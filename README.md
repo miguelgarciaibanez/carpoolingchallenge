@@ -218,3 +218,11 @@ following survey:
 - https://forms.gle/EzPeURspTCLG1q9T7
 
 Your participation is really important. Thanks for your contribution!
+
+## Developer notes
+- No persistence system has been used. It means everytime the service stops it should be set again with cars array. 
+- A new not required method has been added for testing purposes. It is named after ```setPendingJourneys```.
+- Node ```Map(key,value)```objects have been used for the whole developing. The reason is because access complexity of Maps is $\mathcal{O}(n)$.
+- Test have been developed to check a code coverage above 75%
+- Some test with $10^{5}$ cars/waiting groups have been done
+- Pending groups are checked every ten seconds. It can be changed in an environment variable.
